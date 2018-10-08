@@ -1,0 +1,27 @@
+name: OneNightJinro
+version: ${project.version}
+main: io.github.axtuki1.onenightjinro.MConJinro
+authors: [axtuki1]
+permissions:
+    Jinro.GameMaster:
+        description: GameMaster
+        default: op
+    Jinro.Spectator:
+        description: Spectator
+        default: false
+    Jinro.Player:
+        description: Player
+        default: true
+commands:
+    jinro:
+        description: Player
+        permission: Jinro.Player
+        usage: 一般向けのコマンドやで だれでも使えるやで
+    jinro_ad:
+        description: GameMaster
+        permission: Jinro.GameMaster
+        usage: GM向けのコマンドやで 一般会員は使えないやで
+    c:
+        description: 指定役職全体通知
+        permission: Jinro.GameMaster
+        usage: GM向けやで
