@@ -5,6 +5,9 @@ import io.github.axtuki1.onenightjinro.JinroConfig;
 import io.github.axtuki1.onenightjinro.MConJinro;
 import io.github.axtuki1.onenightjinro.Utility;
 import io.github.axtuki1.onenightjinro.player.JinroPlayers;
+import io.github.axtuki1.onenightjinro.player.PlayerData;
+import io.github.axtuki1.onenightjinro.player.RandomSelect;
+import io.github.axtuki1.onenightjinro.player.ToolImport;
 import io.github.axtuki1.onenightjinro.task.BaseTimerTask;
 import io.github.axtuki1.onenightjinro.task.NightTimerTask;
 import org.bukkit.Bukkit;
@@ -14,9 +17,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
+import javax.tools.Tool;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -41,6 +46,10 @@ public class JinroAdminCommand implements TabExecutor {
             MConJinro.init();
             Bukkit.broadcastMessage(MConJinro.getPrefix() + "初期化しました。");
         }
+        if( args[0].equalsIgnoreCase("reload") ){
+            MConJinro.getMain().reloadConfig();
+            sender.sendMessage(MConJinro.getPrefix() + "Configの再読込を行いました。");
+        }
         if( args[0].equalsIgnoreCase("start") ){
             if( GameStatus.getStatus().equals(GameStatus.Ready) ){
                 BaseTimerTask task = new NightTimerTask(
@@ -52,8 +61,15 @@ public class JinroAdminCommand implements TabExecutor {
                 task.start();
                 MConJinro.setTask(task);
                 GameStatus.setStatus(GameStatus.Playing);
-                for( UUID u : JinroPlayers.getNonJoinPlayers()){
-                    JinroPlayers.addSpecPlayer( Bukkit.getPlayer(u) );
+                for( UUID u : JinroPlayers.getNonJoinPlayers().keySet()){
+                    Player p = Bukkit.getPlayer(u);
+                    PlayerData pd = new PlayerData(p.getUniqueId());
+                    if( p.hasPermission("Jinro.GameMaster") ){
+                        pd.setMode(PlayerData.Type.GameMaster);
+                    } else {
+                        pd.setMode(PlayerData.Type.Spectator);
+                    }
+                    JinroPlayers.setData(p , pd);
                 }
             } else {
                 sender.sendMessage(MConJinro.getPrefix() + ChatColor.RED + "ゲームは既に開始されています。");
@@ -74,12 +90,22 @@ public class JinroAdminCommand implements TabExecutor {
                 sender.sendMessage(MConJinro.getPrefix() + ChatColor.YELLOW + "投票時間です。強制的に次に移行する場合は、");
                 sender.sendMessage(MConJinro.getPrefix() + ChatColor.AQUA + "/jinro_ad next force"+ ChatColor.YELLOW +" を実行してください。");
             } else {
-                MConJinro.getTask().end();
+                if( MConJinro.getTask() != null ){
+                    MConJinro.getTask().end();
+                } else {
+                    Bukkit.broadcastMessage(MConJinro.getPrefix() + ChatColor.RED + "タスクが存在しません。");
+                }
             }
         } else if( args[0].equalsIgnoreCase("touhyou") ){
             new JinroAdminTouhyouCmd().onCommand(sender, command, label, args);
         } else if( args[0].equalsIgnoreCase("job") ){
             new JinroAdminJobCmd().onCommand(sender, command, label, args);
+        } else if( args[0].equalsIgnoreCase("list") ){
+            new JinroAdminPlayerListCmd().onCommand(sender, command, label, args);
+        } else if( args[0].equalsIgnoreCase("toolimport") ){
+            ToolImport.Import(Utility.CommandText(args, 1));
+        } else if( args[0].equalsIgnoreCase("auto") ){
+            new RandomSelect().openInventory((Player)sender);
         }
         return true;
     }

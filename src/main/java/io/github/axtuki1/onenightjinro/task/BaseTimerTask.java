@@ -4,6 +4,7 @@ import io.github.axtuki1.onenightjinro.GameStatus;
 import io.github.axtuki1.onenightjinro.MConJinro;
 import io.github.axtuki1.onenightjinro.Utility;
 import io.github.axtuki1.onenightjinro.scoreboard.JinroScoreboard;
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 
 public class BaseTimerTask extends BaseTask {
@@ -19,8 +20,7 @@ public class BaseTimerTask extends BaseTask {
 
     private BukkitTask task;
 
-    private int secondsRest;
-    private int secondsMax;
+    private int secondsRest, secondsMax, secondsBefore;
 
     private long tickBase;
 
@@ -31,6 +31,7 @@ public class BaseTimerTask extends BaseTask {
         this.plugin = pl;
         secondsRest = sec + (int)DEC_OFFSET;
         secondsMax = sec;
+        secondsBefore = sec;
         tickBase = System.currentTimeMillis() + secondsRest * 1000 + OFFSET;
         MConJinro.setTask(this);
     }
@@ -57,6 +58,9 @@ public class BaseTimerTask extends BaseTask {
     public void beforeView() {
         JinroScoreboard.getScoreboard().resetScores(
                 Utility.getColor(getSeconds(), getSecondsMax()) + "残り時間: "+ getSeconds() +"秒"
+        );
+        JinroScoreboard.getScoreboard().resetScores(
+                Utility.getColor(secondsBefore, getSecondsMax()) + "残り時間: "+ secondsBefore +"秒"
         );
     }
 
@@ -106,6 +110,11 @@ public class BaseTimerTask extends BaseTask {
 
     public boolean isPaused() {
         return isPaused;
+    }
+
+    public void setSecondsRest(int secondsRest) {
+        secondsBefore = this.secondsRest;
+        this.secondsRest = secondsRest;
     }
 
     public int getSeconds() {

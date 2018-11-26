@@ -1,8 +1,11 @@
 package io.github.axtuki1.onenightjinro;
 
 import io.github.axtuki1.onenightjinro.command.JinroAdminCommand;
+import io.github.axtuki1.onenightjinro.command.JinroToJobALLChatCommand;
 import io.github.axtuki1.onenightjinro.event.Event;
+import io.github.axtuki1.onenightjinro.event.GuiEvent;
 import io.github.axtuki1.onenightjinro.player.JinroPlayers;
+import io.github.axtuki1.onenightjinro.player.RandomSelect;
 import io.github.axtuki1.onenightjinro.scoreboard.JinroScoreboard;
 import io.github.axtuki1.onenightjinro.task.BaseTask;
 import org.bukkit.Bukkit;
@@ -107,12 +110,13 @@ public final class MConJinro extends JavaPlugin {
         commands = new HashMap<String, TabExecutor>();
         commands.put("jinro", new JinroCommand(this));
         commands.put("jinro_ad", new JinroAdminCommand(this));
-        commands.put("c", new JinroCommand(this));
+        commands.put("c", new JinroToJobALLChatCommand(this));
 
         saveDefaultConfig();
         reloadConfig();
 
         getServer().getPluginManager().registerEvents(new Event(), this);
+        getServer().getPluginManager().registerEvents(new RandomSelect(), this);
     }
 
     @Override
@@ -164,10 +168,16 @@ public final class MConJinro extends JavaPlugin {
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
         obj.setDisplayName("情報");
         GameStatus.setStatus(GameStatus.Ready);
+        GameStatus.Cycle.setCycle(GameStatus.Cycle.Ready);
         MConJinro.getRespawnLoc().getWorld().setTime(0);
+        JinroPlayers.init();
         setTask(null);
         for( Player p : Bukkit.getOnlinePlayers() ){
             p.setPlayerListName(p.getName() + " ");
+        }
+        if( MConJinro.getTask() != null ) {
+            MConJinro.getTask().stop();
+            MConJinro.setTask(null);
         }
     }
 

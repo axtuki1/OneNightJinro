@@ -45,9 +45,8 @@ public class Event implements Listener {
         }
 
         // 観戦
-        if(JinroPlayers.getSpecPlayers().containsKey(e.getPlayer().getUniqueId())){
-            for (UUID pu : JinroPlayers.getSpecPlayers().keySet()) {
-                Player p = Bukkit.getPlayer(pu);
+        if(JinroPlayers.getSpecPlayers().contains(e.getPlayer())){
+            for (Player p : JinroPlayers.getSpecPlayers()) {
                 p.sendMessage(ChatColor.WHITE + "[観戦] <" + e.getPlayer().getName() + "> " + e.getMessage());
                 return;
             }

@@ -175,7 +175,7 @@ public enum Job {
         @Override
         public String[] getDescription() {
             return new String[]{
-                    getColor() + "一人と役職を交換できます。",
+                    getColor() + "「/jinro change <Player>」で一人と役職を交換できます。",
                     getColor() + "交換されたプレイヤーは交換されたことはわかりません。",
                     getColor() + "交換した後の勝利条件は交換された役の勝利条件になります。",
                     getColor() + "交換しない場合は時間までコマンドを実行しないでください。",
@@ -231,6 +231,8 @@ public enum Job {
                     return;
                 }
                 Job j = JinroPlayers.getData(target).getFirstJob();
+                Bukkit.broadcast(MConJinro.getPrefix() + getColor() + "[" + getJobName() + ":占い] "+ p.getName() +" -> " +
+                        target.getName() + j.getColor() + " ["+ j.getJobName() +"]","Jinro.GameMaster");
                 p.sendMessage(MConJinro.getPrefix() +
                         ChatColor.GREEN + target.getName() + " は " +
                         j.getColor() + "["+j.getJobName()+"] " +

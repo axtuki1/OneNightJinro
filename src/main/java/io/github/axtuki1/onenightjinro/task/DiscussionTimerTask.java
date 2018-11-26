@@ -47,20 +47,6 @@ public class DiscussionTimerTask extends BaseTimerTask {
     }
 
     @Override
-    public void beforeView() {
-        JinroScoreboard.getScoreboard().resetScores(
-                Utility.getColor(getSeconds(), getSecondsMax()) + "残り時間: "+ getSeconds() +"秒"
-        );
-    }
-
-    @Override
-    public void updateView(){
-        JinroScoreboard.getInfoObj().getScore(
-                Utility.getColor(getSeconds(), getSecondsMax()) + "残り時間: " + getSeconds() + "秒"
-        ).setScore(0);
-    }
-
-    @Override
     public void onChat(AsyncPlayerChatEvent e) {
         if ((getSecondsMax() - getSeconds()) < 5) {
             e.getPlayer().sendMessage(MConJinro.getPrefix() + ChatColor.RED + "最初の5秒間は発言できません。");

@@ -101,7 +101,7 @@ public class ExecutionTask extends BaseTask {
                 Bukkit.broadcastMessage(ChatColor.RED + "====[人狼が勝利しました]====");
             }
         }
-        Bukkit.broadcastMessage(ChatColor.RED + "===============================");
+        Bukkit.broadcastMessage(ChatColor.RED + "==================================");
         Bukkit.broadcastMessage(ChatColor.GOLD + "[各プレイヤーの役職]");
         StringBuilder sb = new StringBuilder();
         for( Job j : JinroPlayers.getNotJob() ){
@@ -124,7 +124,7 @@ public class ExecutionTask extends BaseTask {
             }
             Bukkit.broadcastMessage(ChatColor.WHITE + pd.getPlayer().getName() + ChatColor.GREEN + ": " + pd.getJob().getColor() + "[" + pd.getJob().getJobName() + "] " + ch + ex);
         }
-        Bukkit.broadcastMessage(ChatColor.RED + "===============================");
+        Bukkit.broadcastMessage(ChatColor.RED + "==================================");
         Bukkit.broadcastMessage(ChatColor.GOLD + "[各プレイヤーの行動(簡略)]");
         for( Job j : Job.values() ){
             if( !j.isActionable() || JinroPlayers.getJobPlayersNumber(j) == 0){
@@ -143,7 +143,7 @@ public class ExecutionTask extends BaseTask {
                 Bukkit.broadcastMessage( ChatColor.GRAY + "N/A - " + ChatColor.WHITE + "誰も行動していないようです．" );
             }
         }
-        Bukkit.broadcastMessage(ChatColor.RED + "===============================");
+        Bukkit.broadcastMessage(ChatColor.RED + "==================================");
         GameStatus.setStatus(GameStatus.End);
         GameStatus.Cycle.setCycle(GameStatus.Cycle.Ready);
     }

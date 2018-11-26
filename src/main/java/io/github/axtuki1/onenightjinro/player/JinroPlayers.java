@@ -1,24 +1,22 @@
 package io.github.axtuki1.onenightjinro.player;
 
-import io.github.axtuki1.onenightjinro.MConJinro;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
+/**
+ * プレイヤーデータを管理するやつ
+ */
 public class JinroPlayers {
 
     static HashMap<UUID, PlayerData> players;
-    static HashMap<UUID, PlayerData> specPlayers;
     static List<Job> notJob;
     static List<UUID> executionPlayers;
 
     public static void init(){
         players = new HashMap<UUID, PlayerData>();
         notJob = new ArrayList<Job>();
-        specPlayers = new HashMap<UUID, PlayerData>();
         executionPlayers = new ArrayList<UUID>();
     }
 
@@ -30,46 +28,48 @@ public class JinroPlayers {
         JinroPlayers.executionPlayers = executionPlayers;
     }
 
-    public static void addPlayer(Player p , Job job ) {
-        players.put(p.getUniqueId(), new PlayerData(p, job));
+    public static void addPlayer(UUID uuid , Job job ) {
+        players.put(uuid, new PlayerData(uuid, job));
     }
 
-    public static void addPlayer( Player p , PlayerData playerData ) {
-        players.put(p.getUniqueId(), playerData);
+    public static void addPlayer(Player p , Job job ) {
+        addPlayer(p.getUniqueId(), job);
+    }
+
+    public static void addPlayer( UUID uuid , PlayerData playerData ) {
+        players.put(uuid, playerData);
     }
 
     public static void removePlayer( Player p ) {
-        players.remove(p);
-    }
-
-    public static void addSpecPlayer( Player p ) {
-        specPlayers.put(p.getUniqueId(), new PlayerData(p, true));
-    }
-
-    public static void addSpecPlayer( Player p , PlayerData playerData ) {
-        specPlayers.put(p.getUniqueId(), playerData);
-    }
-
-    public static void removeSpecPlayer( Player p ) {
-        specPlayers.remove(p);
+        players.remove(p.getUniqueId());
     }
 
     public static HashMap<UUID, PlayerData> getPlayers() {
         return players;
     }
 
-    public static HashMap<UUID, PlayerData> getSpecPlayers() {
-        return specPlayers;
+    public static HashMap<UUID, PlayerData> getJoinedPlayers() {
+        HashMap<UUID, PlayerData> all = getPlayers();
+        HashMap<UUID, PlayerData> joined = new HashMap<UUID, PlayerData>();
+        for( UUID u : all.keySet() ){
+            PlayerData p = all.get(u);
+            if( p.getMode().equals(PlayerData.Type.Player) && p.getJob() != null ){
+                joined.put( u, p );
+            }
+        }
+        return joined;
     }
 
-    public static List<UUID> getNonJoinPlayers() {
-        Set<UUID> join = getPlayers().keySet();
-        ArrayList<UUID> all = new ArrayList<UUID>();
-        for( Player p : Bukkit.getOnlinePlayers() ){
-            all.add(p.getUniqueId());
+    public static HashMap<UUID, PlayerData> getNonJoinPlayers() {
+        HashMap<UUID, PlayerData> all = getPlayers();
+        HashMap<UUID, PlayerData> nonjoin = new HashMap<UUID, PlayerData>();
+        for( UUID u : all.keySet() ){
+            PlayerData p = all.get(u);
+            if( p.getJob() == null ){
+                nonjoin.put( u, p );
+            }
         }
-        all.removeAll(join);
-        return all;
+        return nonjoin;
     }
 
     /**
@@ -109,11 +109,20 @@ public class JinroPlayers {
         return true;
     }
 
+    /**
+     * 指定したプレイヤーの初期役が指定した役であるか判定します。
+     * @param player 対象プレイヤー
+     * @param job 確認したい役
+     * @return 指定役を持っているか
+     */
     public static boolean equalsFirstJob(Player player, Job job){
         PlayerData pd = JinroPlayers.getData(player);
         if( pd == null ){
             return false;
         } else {
+            if(pd.getFirstJob() == null){
+                return false;
+            }
             if( !pd.getFirstJob().equals(job) ){
                 return false;
             }
@@ -137,6 +146,12 @@ public class JinroPlayers {
         return p;
     }
 
+    /**
+     * 指定した役に所属しているプレイヤーを返します。
+     * 初期役ではなく現在の役。
+     * @param job
+     * @return
+     */
     public static ArrayList<Player> getPlayers( Job job ) {
         ArrayList<Player> p = new ArrayList<Player>();
         for( PlayerData pd : getPlayers().values() ){
@@ -147,12 +162,46 @@ public class JinroPlayers {
         return p;
     }
 
+    public static ArrayList<Player> getSpecPlayers() {
+        ArrayList<Player> p = new ArrayList<>();
+        for( PlayerData pd : getPlayers().values() ){
+            if( pd.getMode().equals(PlayerData.Type.Spectator) ){
+                p.add( pd.getPlayer() );
+            }
+        }
+        return p;
+    }
+
+    /**
+     * 指定プレイヤーのPlayerDataを返します。
+     * nullだった場合空のPlayerDataを返します。
+     * @param p プレイヤー
+     */
     public static PlayerData getData(Player p){
-        return players.get(p.getUniqueId());
+        PlayerData pd = players.get(p.getUniqueId());
+        if( pd == null ) return new PlayerData(p.getUniqueId());
+        return pd;
+    }
+
+    /**
+     * 指定プレイヤーのPlayerDataを"そのまま"返します
+     * @param p
+     * @return
+     */
+    public static PlayerData getData(Player p, boolean isRaw){
+        if(isRaw) return players.get(p.getUniqueId());
+        return getData(p);
     }
 
     public static PlayerData getData(UUID u){
-        return players.get(u);
+        PlayerData pd = players.get(u);
+        if( pd == null ) return new PlayerData( u );
+        return pd;
+    }
+
+    public static PlayerData getData(UUID u, boolean isRaw){
+        if(isRaw) return players.get(u);
+        return getData(u);
     }
 
     public static void setData(Player p, PlayerData pd){

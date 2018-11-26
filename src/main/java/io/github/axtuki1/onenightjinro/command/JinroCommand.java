@@ -6,6 +6,7 @@ import io.github.axtuki1.onenightjinro.Utility;
 import io.github.axtuki1.onenightjinro.player.JinroPlayers;
 import io.github.axtuki1.onenightjinro.player.Job;
 import io.github.axtuki1.onenightjinro.player.PlayerData;
+import io.github.axtuki1.onenightjinro.task.DiscussionTimerTask;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -47,6 +48,9 @@ public class JinroCommand implements TabExecutor {
         } else if( args[0].equalsIgnoreCase("co") ){
             new JinroComingOutCmd().onCommand(sender, command, label, args);
             return true;
+        } else if( args[0].equalsIgnoreCase("skip") ){
+            new JinroDiscussionSkipCmd().onCommand(sender, command, label, args);
+            return true;
         }
         return true;
     }
@@ -59,6 +63,7 @@ public class JinroCommand implements TabExecutor {
                 {
                     add("touhyou");
                     add("co");
+                    add("skip");
                 }
             };
             PlayerData pd = JinroPlayers.getData( ((Player) sender) );

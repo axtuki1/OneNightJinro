@@ -6,37 +6,58 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
+/**
+ * プレイヤーデータ
+ */
 public class PlayerData {
 
     private Job firstJob;
     private final UUID player;
-    private boolean isAction, isSpec;
+    private boolean isAction, isDiscussionSkipVoted;
+    private Type type;
     private UUID acitonTarget, voteTarget;
     private Job job;
     private Job comingOut;
     private Job.Marker marker;
 
-    public PlayerData(Player player, Job job){
-        this.player = player.getUniqueId();
+
+    public enum Type {
+        Player, GameMaster, Spectator
+    }
+
+    public PlayerData(UUID uuid, Job job){
+        this.player = uuid;
         isAction = false;
         acitonTarget = null;
         this.firstJob = job;
         this.job = job;
         this.comingOut = null;
-        isSpec = false;
+        this.type = Type.Player;
         marker = null;
     }
 
-    public PlayerData(Player player, boolean isSpectator) {
-        this.player = player.getUniqueId();
+    public PlayerData(UUID uuid, Type mode) {
+        this.player = uuid;
         isAction = false;
         acitonTarget = null;
         this.firstJob = null;
         this.job = null;
         this.comingOut = null;
-        isSpec = isSpectator;
+        this.type = mode;
         marker = null;
     }
+
+    public PlayerData(UUID uuid) {
+        this.player = uuid;
+        isAction = false;
+        acitonTarget = null;
+        this.firstJob = null;
+        this.job = null;
+        this.comingOut = null;
+        this.type = Type.Player;
+        marker = null;
+    }
+
 
     /**
      * このPlayerDataに振られているプレイヤーのUUIDを返す。
@@ -50,12 +71,20 @@ public class PlayerData {
         return Bukkit.getPlayer(player);
     }
 
-    public boolean isSpec() {
-        return isSpec;
+    public void setMode(Type type) {
+        this.type = type;
     }
 
-    public void setSpec(boolean spec) {
-        isSpec = spec;
+    public Type getMode() {
+        return type;
+    }
+
+    public boolean isDiscussionSkipVoted() {
+        return isDiscussionSkipVoted;
+    }
+
+    public void setDiscussionSkipVoted(boolean discussionSkipVoted) {
+        isDiscussionSkipVoted = discussionSkipVoted;
     }
 
     /**
