@@ -23,6 +23,7 @@ public class JinroToJobALLChatCommand implements TabExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if( args.length == 0 ){
+            sender.sendMessage(MConJinro.getPrefix() + ChatColor.AQUA + "/c <役職> <メッセージ...>");
             sender.sendMessage(Job.getJobHelp());
             sender.sendMessage(MConJinro.getPrefix() + ChatColor.AQUA + "観戦: kansen");
             return true;

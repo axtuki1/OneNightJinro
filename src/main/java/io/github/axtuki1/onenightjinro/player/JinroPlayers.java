@@ -44,6 +44,9 @@ public class JinroPlayers {
         players.remove(p.getUniqueId());
     }
 
+    /**
+     * 登録済みのプレイヤーを返します。
+     */
     public static HashMap<UUID, PlayerData> getPlayers() {
         return players;
     }
@@ -53,7 +56,7 @@ public class JinroPlayers {
         HashMap<UUID, PlayerData> joined = new HashMap<UUID, PlayerData>();
         for( UUID u : all.keySet() ){
             PlayerData p = all.get(u);
-            if( p.getMode().equals(PlayerData.Type.Player) && p.getJob() != null ){
+            if( p.getPlayingType().equals(PlayerData.PlayingType.Player) && p.getJob() != null ){
                 joined.put( u, p );
             }
         }
@@ -63,10 +66,12 @@ public class JinroPlayers {
     public static HashMap<UUID, PlayerData> getNonJoinPlayers() {
         HashMap<UUID, PlayerData> all = getPlayers();
         HashMap<UUID, PlayerData> nonjoin = new HashMap<UUID, PlayerData>();
-        for( UUID u : all.keySet() ){
-            PlayerData p = all.get(u);
-            if( p.getJob() == null ){
-                nonjoin.put( u, p );
+        for( Player p : Bukkit.getOnlinePlayers() ){
+            PlayerData pd = JinroPlayers.getData(p, true);
+            if( pd == null ){
+                nonjoin.put(p.getUniqueId(), new PlayerData(p.getUniqueId()));
+            } else if( pd.getJob() == null ) {
+                nonjoin.put(p.getUniqueId(), pd);
             }
         }
         return nonjoin;
@@ -165,7 +170,7 @@ public class JinroPlayers {
     public static ArrayList<Player> getSpecPlayers() {
         ArrayList<Player> p = new ArrayList<>();
         for( PlayerData pd : getPlayers().values() ){
-            if( pd.getMode().equals(PlayerData.Type.Spectator) ){
+            if( pd.getPlayingType().equals(PlayerData.PlayingType.Spectator) ){
                 p.add( pd.getPlayer() );
             }
         }
@@ -209,7 +214,7 @@ public class JinroPlayers {
     }
 
     public static void setData(UUID u, PlayerData pd){
-        players.replace(u, pd);
+        players.put(u, pd);
     }
 
     public static HashMap<Job, Integer> getJobPlayersNumber(){

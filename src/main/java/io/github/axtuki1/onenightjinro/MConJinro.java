@@ -5,13 +5,11 @@ import io.github.axtuki1.onenightjinro.command.JinroToJobALLChatCommand;
 import io.github.axtuki1.onenightjinro.event.Event;
 import io.github.axtuki1.onenightjinro.event.GuiEvent;
 import io.github.axtuki1.onenightjinro.player.JinroPlayers;
+import io.github.axtuki1.onenightjinro.player.RandomConfig;
 import io.github.axtuki1.onenightjinro.player.RandomSelect;
 import io.github.axtuki1.onenightjinro.scoreboard.JinroScoreboard;
 import io.github.axtuki1.onenightjinro.task.BaseTask;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -115,8 +113,8 @@ public final class MConJinro extends JavaPlugin {
         saveDefaultConfig();
         reloadConfig();
 
+
         getServer().getPluginManager().registerEvents(new Event(), this);
-        getServer().getPluginManager().registerEvents(new RandomSelect(), this);
     }
 
     @Override
@@ -171,9 +169,15 @@ public final class MConJinro extends JavaPlugin {
         GameStatus.Cycle.setCycle(GameStatus.Cycle.Ready);
         MConJinro.getRespawnLoc().getWorld().setTime(0);
         JinroPlayers.init();
-        setTask(null);
         for( Player p : Bukkit.getOnlinePlayers() ){
             p.setPlayerListName(p.getName() + " ");
+            if( p.hasPermission("Jinro.GameMaster") ){
+                p.setPlayerListName(ChatColor.YELLOW + "[GM] " + p.getName() + " ");
+            }
+            if (p.getGameMode().equals(GameMode.SPECTATOR)) {
+                p.setGameMode(GameMode.ADVENTURE);
+                TeleportToRespawn(p);
+            }
         }
         if( MConJinro.getTask() != null ) {
             MConJinro.getTask().stop();
@@ -185,10 +189,16 @@ public final class MConJinro extends JavaPlugin {
     private static Location RespawnLoc = null;
 
     public static void TeleportToReikai(Player p){
+        if( getReikaiLoc() == null ){
+            p.teleport(p.getWorld().getSpawnLocation());
+        }
         p.teleport(getReikaiLoc());
     }
 
     public static void TeleportToRespawn(Player p){
+        if( getRespawnLoc() == null ){
+            p.teleport(p.getWorld().getSpawnLocation());
+        }
         p.teleport(getRespawnLoc());
     }
 

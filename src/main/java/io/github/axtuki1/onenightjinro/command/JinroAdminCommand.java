@@ -8,6 +8,7 @@ import io.github.axtuki1.onenightjinro.player.JinroPlayers;
 import io.github.axtuki1.onenightjinro.player.PlayerData;
 import io.github.axtuki1.onenightjinro.player.RandomSelect;
 import io.github.axtuki1.onenightjinro.player.ToolImport;
+import io.github.axtuki1.onenightjinro.task.BaseTask;
 import io.github.axtuki1.onenightjinro.task.BaseTimerTask;
 import io.github.axtuki1.onenightjinro.task.NightTimerTask;
 import org.bukkit.Bukkit;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import static org.bukkit.Bukkit.getServer;
+
 /**
  * Admin(GameMaster)用のコマンド
  */
@@ -32,8 +35,12 @@ public class JinroAdminCommand implements TabExecutor {
 
     private MConJinro plugin;
 
+    private RandomSelect rs;
+
     public JinroAdminCommand(MConJinro plugin){
         this.plugin = plugin;
+        this.rs = new RandomSelect();
+        getServer().getPluginManager().registerEvents(new RandomSelect(), plugin);
     }
 
     @Override
@@ -58,19 +65,20 @@ public class JinroAdminCommand implements TabExecutor {
                                 JinroConfig.NightTime.getPath()
                         )
                 );
-                task.start();
+                for( Player p : Bukkit.getOnlinePlayers()){
+                    PlayerData pd = JinroPlayers.getData(p);
+                    if( pd.getJob() == null ){
+                        if( p.hasPermission("Jinro.GameMaster") ){
+                            pd.setPlayingType(PlayerData.PlayingType.GameMaster);
+                        } else {
+                            pd.setPlayingType(PlayerData.PlayingType.Spectator);
+                        }
+                        JinroPlayers.setData(p , pd);
+                    }
+                }
                 MConJinro.setTask(task);
                 GameStatus.setStatus(GameStatus.Playing);
-                for( UUID u : JinroPlayers.getNonJoinPlayers().keySet()){
-                    Player p = Bukkit.getPlayer(u);
-                    PlayerData pd = new PlayerData(p.getUniqueId());
-                    if( p.hasPermission("Jinro.GameMaster") ){
-                        pd.setMode(PlayerData.Type.GameMaster);
-                    } else {
-                        pd.setMode(PlayerData.Type.Spectator);
-                    }
-                    JinroPlayers.setData(p , pd);
-                }
+                task.start();
             } else {
                 sender.sendMessage(MConJinro.getPrefix() + ChatColor.RED + "ゲームは既に開始されています。");
             }
@@ -82,10 +90,16 @@ public class JinroAdminCommand implements TabExecutor {
             } else {
                 Bukkit.broadcastMessage(MConJinro.getPrefix() + ChatColor.RED + "ゲームが実行中ではありません。");
             }
-        } else if( args[0].equalsIgnoreCase("pause") ){
-            MConJinro.getTask().pause();
-            sender.sendMessage(MConJinro.getPrefix() + "タイマーを一時停止しました。");
         } else if( args[0].equalsIgnoreCase("next") ){
+            if( args.length >= 2){
+                if( args[1].equalsIgnoreCase("force") ){
+                    if( MConJinro.getTask() != null ){
+                        MConJinro.getTask().end();
+                    } else {
+                        sender.sendMessage(MConJinro.getPrefix() + ChatColor.RED + "タスクが存在しません。");
+                    }
+                }
+            }
             if( GameStatus.Cycle.getCycle().equals(GameStatus.Cycle.Vote) ){
                 sender.sendMessage(MConJinro.getPrefix() + ChatColor.YELLOW + "投票時間です。強制的に次に移行する場合は、");
                 sender.sendMessage(MConJinro.getPrefix() + ChatColor.AQUA + "/jinro_ad next force"+ ChatColor.YELLOW +" を実行してください。");
@@ -93,27 +107,63 @@ public class JinroAdminCommand implements TabExecutor {
                 if( MConJinro.getTask() != null ){
                     MConJinro.getTask().end();
                 } else {
-                    Bukkit.broadcastMessage(MConJinro.getPrefix() + ChatColor.RED + "タスクが存在しません。");
+                    sender.sendMessage(MConJinro.getPrefix() + ChatColor.RED + "タスクが存在しません。");
                 }
             }
         } else if( args[0].equalsIgnoreCase("touhyou") ){
             new JinroAdminTouhyouCmd().onCommand(sender, command, label, args);
         } else if( args[0].equalsIgnoreCase("job") ){
             new JinroAdminJobCmd().onCommand(sender, command, label, args);
+        } else if( args[0].equalsIgnoreCase("spec") ){
+            new JinroAdminSpecCmd().onCommand(sender, command, label, args);
         } else if( args[0].equalsIgnoreCase("list") ){
             new JinroAdminPlayerListCmd().onCommand(sender, command, label, args);
         } else if( args[0].equalsIgnoreCase("toolimport") ){
             ToolImport.Import(Utility.CommandText(args, 1));
         } else if( args[0].equalsIgnoreCase("auto") ){
-            new RandomSelect().openInventory((Player)sender);
+
+            rs.openInventory((Player)sender);
+
+        } else if( args[0].equalsIgnoreCase("timer") ){
+            // jinro_ad timer set 100
+            if(args.length >= 3) {
+                if( args[1].equalsIgnoreCase("set") ){
+                    BaseTask task = MConJinro.getTask();
+                    if( !(task instanceof BaseTimerTask) ){
+                        sender.sendMessage(MConJinro.getPrefix() + ChatColor.RED + "実行中のタスクはタイマーが存在しません。");
+                        return true;
+                    }
+                    ((BaseTimerTask)task).setSecondsRest( Integer.parseInt(args[2]) );
+                } else if( args[1].equalsIgnoreCase("add") ){
+                    BaseTask task = MConJinro.getTask();
+                    if( !(task instanceof BaseTimerTask) ){
+                        sender.sendMessage(MConJinro.getPrefix() + ChatColor.RED + "実行中のタスクはタイマーが存在しません。");
+                        return true;
+                    }
+                    int t = ((BaseTimerTask)task).getSeconds();
+                    ((BaseTimerTask)task).setSecondsRest( t + Integer.parseInt(args[2]) );
+                }
+            } else if( args[0].equalsIgnoreCase("pause") ) {
+                MConJinro.getTask().pause();
+                sender.sendMessage(MConJinro.getPrefix() + "タイマーを一時停止しました。");
+            } else {
+                Utility.sendCmdHelp(sender, "/jinro_ad timer set <秒数>", "タイマーの秒数を設定します。");
+                Utility.sendCmdHelp(sender, "/jinro_ad timer add <秒数>", "タイマーの秒数を追加します。");
+                Utility.sendCmdHelp(sender, "/jinro_ad timer pause", "タイマーを一時停止します。");
+                return true;
+            }
         }
         return true;
     }
 
     private void sendCmdHelp(Player sender) {
         Utility.sendCmdHelp(sender, "/jinro_ad start", "ゲームを開始します。");
-        Utility.sendCmdHelp(sender, "/jinro_ad stop", "ゲームを開始します。");
-        Utility.sendCmdHelp(sender, "/jinro_ad next", "ゲームを開始します。");
+        Utility.sendCmdHelp(sender, "/jinro_ad stop", "ゲームを強制終了します。");
+        Utility.sendCmdHelp(sender, "/jinro_ad stop", "タイマーを");
+        Utility.sendCmdHelp(sender, "/jinro_ad next", "次のタスクへ移動します。");
+        Utility.sendCmdHelp(sender, "/jinro_ad list", "プレイヤーリストを表示します。");
+        Utility.sendCmdHelp(sender, "/jinro_ad job <...>", "役職を設定します。");
+        Utility.sendCmdHelp(sender, "/jinro_ad touhyou <...>", "投票関連のコマンドです。");
     }
 
     @Override
@@ -121,7 +171,7 @@ public class JinroAdminCommand implements TabExecutor {
         List<String> out = new ArrayList<String>();
         if( args.length == 1 ){
             for (String name : new String[]{
-                    "start", "stop", "next", "init", "touhyou", "job"
+                    "start", "stop", "next", "init", "touhyou", "job", "timer"
             }) {
                 if (name.toLowerCase().startsWith(args[0].toLowerCase())) {
                     out.add(name);
@@ -133,6 +183,16 @@ public class JinroAdminCommand implements TabExecutor {
                 out = new JinroAdminTouhyouCmd().onTabComplete(sender, command, alias, args);
             } else if( args[0].equalsIgnoreCase("job") ){
                 out = new JinroAdminJobCmd().onTabComplete(sender, command, alias, args);
+            } else if( args[0].equalsIgnoreCase("timer") ){
+                for (String name : new String[]{
+                        "set", "add", "pause"
+                }) {
+                    if (name.toLowerCase().startsWith(args[1].toLowerCase())) {
+                        out.add(name);
+                    }
+                }
+            } else if( args[0].equalsIgnoreCase("spec") ){
+                out = new JinroAdminSpecCmd().onTabComplete(sender, command, alias, args);
             }
         }
         return out;

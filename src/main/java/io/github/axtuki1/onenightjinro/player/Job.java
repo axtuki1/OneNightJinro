@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public enum Job {
 
@@ -45,6 +46,12 @@ public enum Job {
                     getColor() + "目標: 人狼を村から一人でも処刑する [村人の勝利]"
             };
         }
+
+        @Override
+        public String[] getDescription(boolean option) {
+            return getDescription();
+        }
+
         @Override
         public boolean isActionable() {
             return false;
@@ -78,9 +85,10 @@ public enum Job {
 
         @Override
         public String[] getDescription() {
-            return getDescription(true);
+            return getDescription(false);
         }
 
+        @Override
         public String[] getDescription(boolean isPlayerList) {
             ArrayList<String> s = new ArrayList<String>(){
                 {
@@ -96,6 +104,7 @@ public enum Job {
             }
             return s.toArray(new String[s.size()]);
         }
+
         @Override
         public boolean isActionable() {
             return false;
@@ -182,6 +191,12 @@ public enum Job {
                     getColor() + "目標: 人狼を村から一人でも処刑する [村人の勝利]"
             };
         }
+
+        @Override
+        public String[] getDescription(boolean option) {
+            return getDescription();
+        }
+
         @Override
         public boolean isActionable() {
             return true;
@@ -273,6 +288,11 @@ public enum Job {
         }
 
         @Override
+        public String[] getDescription(boolean option) {
+            return getDescription();
+        }
+
+        @Override
         public boolean isActionable() {
             return true;
         }
@@ -346,6 +366,12 @@ public enum Job {
     abstract public String[] getDescription();
 
     /**
+     * 役についての説明を返します。
+     * 2通りのメッセージを返せます
+     */
+    abstract public String[] getDescription(boolean option);
+
+    /**
      * この役がアクションを起こせるか返します。
      */
     abstract public boolean isActionable();
@@ -371,6 +397,15 @@ public enum Job {
             }
         }
         return s.toArray(new String[s.size()]);
+    }
+
+    public static Job[] getDefaultSort(){
+        return new Job[]{
+                murabito,
+                jinro,
+                kaitou,
+                uranai,
+        };
     }
 
 }

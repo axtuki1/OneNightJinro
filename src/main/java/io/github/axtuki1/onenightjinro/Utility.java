@@ -97,4 +97,14 @@ public class Utility {
         }
         return ChatColor.GREEN;
     }
+
+    /**
+     * 乱数を生成します 0 から max
+     * @param max 生成される最大数値 - 1
+     * @return 生成された整数
+     */
+    public static int generateRandom( int max ) {
+        return (int)(Math.random() * max);
+    }
+
 }

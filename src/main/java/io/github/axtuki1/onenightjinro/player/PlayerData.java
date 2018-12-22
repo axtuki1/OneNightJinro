@@ -11,17 +11,27 @@ import java.util.UUID;
  */
 public class PlayerData {
 
+    // 最初の役職
     private Job firstJob;
+    // プレイヤーのUUID
     private final UUID player;
+    // isAction: 行動済みか
+    // isDiscussionSkipVoted: 議論時間のスキップ投票済みか
     private boolean isAction, isDiscussionSkipVoted;
-    private Type type;
+    // プレイヤーか観戦か
+    private PlayingType type;
+    // actionTarget: 行動を起こした対象プレイヤーのUUID
+    // voteTarget: 投票した対象プレイヤーのUUID
     private UUID acitonTarget, voteTarget;
+    // 現在の役職
     private Job job;
+    // カミングアウトした役職
     private Job comingOut;
+    // 白・黒マーカー
     private Job.Marker marker;
 
 
-    public enum Type {
+    public enum PlayingType {
         Player, GameMaster, Spectator
     }
 
@@ -32,11 +42,11 @@ public class PlayerData {
         this.firstJob = job;
         this.job = job;
         this.comingOut = null;
-        this.type = Type.Player;
+        this.type = PlayingType.Player;
         marker = null;
     }
 
-    public PlayerData(UUID uuid, Type mode) {
+    public PlayerData(UUID uuid, PlayingType mode) {
         this.player = uuid;
         isAction = false;
         acitonTarget = null;
@@ -54,7 +64,7 @@ public class PlayerData {
         this.firstJob = null;
         this.job = null;
         this.comingOut = null;
-        this.type = Type.Player;
+        this.type = PlayingType.Player;
         marker = null;
     }
 
@@ -71,11 +81,11 @@ public class PlayerData {
         return Bukkit.getPlayer(player);
     }
 
-    public void setMode(Type type) {
+    public void setPlayingType(PlayingType type) {
         this.type = type;
     }
 
-    public Type getMode() {
+    public PlayingType getPlayingType() {
         return type;
     }
 
@@ -179,5 +189,18 @@ public class PlayerData {
      */
     public void setVoteTarget(UUID voteTarget) {
         this.voteTarget = voteTarget;
+    }
+
+    public void dump(){
+        Bukkit.broadcastMessage("PlayerData Dump ==================");
+        Bukkit.broadcastMessage("UUID: "+this.getUUID());
+        Bukkit.broadcastMessage("FirstJob: "+this.getFirstJob());
+        Bukkit.broadcastMessage("Job: "+this.getJob());
+        Bukkit.broadcastMessage("Marker: "+this.getMarker());
+        Bukkit.broadcastMessage("ActionTarget: "+this.getAcitonTarget());
+        Bukkit.broadcastMessage("ComingOut: "+this.getComingOut());
+        Bukkit.broadcastMessage("PlayingType: "+this.getPlayingType());
+        Bukkit.broadcastMessage("VoteTarget: "+this.getVoteTarget());
+        Bukkit.broadcastMessage("PlayerData Dump: End ==================");
     }
 }
