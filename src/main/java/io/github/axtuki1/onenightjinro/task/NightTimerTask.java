@@ -40,7 +40,7 @@ public class NightTimerTask extends BaseTimerTask {
                 p.setPlayerListName(p.getName() + " ");
             } else if( pd.getPlayingType().equals(PlayerData.PlayingType.Spectator) ){
                 pd.getPlayer().sendMessage( ChatColor.RED + "=====" + ChatColor.WHITE +  " 観戦者として参加しています " + ChatColor.RED + "=====");
-                pd.getPlayer().sendMessage( ChatColor.AQUA + "このセッション中のチャットは観戦全体にのみ聞こえます。" );
+                pd.getPlayer().sendMessage( ChatColor.AQUA + "このセッション中のチャットは観戦者全体にのみ聞こえます。" );
                 p.setPlayerListName(ChatColor.GRAY + "" + ChatColor.ITALIC + "[観戦] " + p.getName() + " ");
                 p.setGameMode(GameMode.SPECTATOR);
             } else if( pd.getPlayingType().equals(PlayerData.PlayingType.GameMaster) ){
@@ -82,7 +82,7 @@ public class NightTimerTask extends BaseTimerTask {
     @Override
     public void onChat(AsyncPlayerChatEvent e) {
         Job job = JinroPlayers.getData(e.getPlayer()).getFirstJob();
+        MConJinro.sendGameMaster(job.getColor() + "[" + job.getJobName2Moji() + "] <" + e.getPlayer().getName() + "> " + e.getMessage());
         e.getPlayer().sendMessage( job.getColor() + "[" + job.getJobName2Moji() + "] <" + e.getPlayer().getName() + "> " + e.getMessage() );
-
     }
 }

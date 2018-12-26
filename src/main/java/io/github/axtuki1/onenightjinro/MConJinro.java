@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * ワンナイト人狼のシステム面担当プラグイン。
@@ -39,6 +40,7 @@ public final class MConJinro extends JavaPlugin {
     private static BaseTask timerTask = null;
     private static JinroScoreboard js;
     private HashMap<String, TabExecutor> commands;
+    private static boolean isDEBUG = false;
 
     private static World world;
 
@@ -113,6 +115,7 @@ public final class MConJinro extends JavaPlugin {
         saveDefaultConfig();
         reloadConfig();
 
+        isDEBUG = getConfig().getBoolean("Debug");
 
         getServer().getPluginManager().registerEvents(new Event(), this);
     }
@@ -124,6 +127,10 @@ public final class MConJinro extends JavaPlugin {
 
     public static MConJinro getMain() {
         return main;
+    }
+
+    public static boolean isDEBUG() {
+        return isDEBUG;
     }
 
     @Override
@@ -153,6 +160,25 @@ public final class MConJinro extends JavaPlugin {
 
     public static String getPrefix() {
         return ChatColor.GREEN + "[" + ChatColor.AQUA + "OneNightJinro" + ChatColor.GREEN + "] " + ChatColor.WHITE;
+    }
+
+    public static void sendGameMaster(String s, boolean isLogging){
+        for( Player p : Bukkit.getOnlinePlayers() ){
+            if( JinroPlayers.isGameMaster(p) ){
+                p.sendMessage( s );
+            }
+        }
+        if( isLogging ){
+            sendConsole(s);
+        }
+    }
+
+    public static void sendConsole(String s){
+        getMain().getServer().getConsoleSender().sendMessage(s);
+    }
+
+    public static void sendGameMaster(String s){
+        sendGameMaster(s, true);
     }
 
     public static void init(){

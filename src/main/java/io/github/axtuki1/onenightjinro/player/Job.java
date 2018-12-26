@@ -133,6 +133,9 @@ public enum Job {
                 p.sendMessage(MConJinro.getPrefix() + ChatColor.GREEN + "行動済みにしました。これ以降の交換はできません。");
                 pd.setAction(true);
                 JinroPlayers.setData(p, pd);
+                MConJinro.sendGameMaster(
+                        MConJinro.getPrefix() + getColor() + "[" + getJobName() + ":交換] "+ p.getName() +" <=-=> なし "
+                );
                 return;
             }
             Player target = Bukkit.getPlayerExact(args[1]);
@@ -145,8 +148,8 @@ public enum Job {
                 return;
             }
             Job j = JinroPlayers.getData(target).getFirstJob();
-            Bukkit.broadcast(MConJinro.getPrefix() + getColor() + "[" + getJobName() + ":交換] "+ p.getName() +" <=-=> " +
-                    target.getName() + j.getColor() + " ["+ j.getJobName() +"]","Jinro.GameMaster");
+            MConJinro.sendGameMaster(MConJinro.getPrefix() + getColor() + "[" + getJobName() + ":交換] "+ p.getName() +" <=-=> " +
+                    target.getName() + j.getColor() + " ["+ j.getJobName() +"]");
             p.sendMessage(MConJinro.getPrefix() +
                     ChatColor.GREEN + target.getName() + " とすり替えた結果、あなたは " +
                     j.getColor() + "["+j.getJobName()+"] " +
@@ -246,8 +249,8 @@ public enum Job {
                     return;
                 }
                 Job j = JinroPlayers.getData(target).getFirstJob();
-                Bukkit.broadcast(MConJinro.getPrefix() + getColor() + "[" + getJobName() + ":占い] "+ p.getName() +" -> " +
-                        target.getName() + j.getColor() + " ["+ j.getJobName() +"]","Jinro.GameMaster");
+                MConJinro.sendGameMaster(MConJinro.getPrefix() + getColor() + "[" + getJobName() + ":占い] "+ p.getName() +" -> " +
+                        target.getName() + j.getColor() + " ["+ j.getJobName() +"]");
                 p.sendMessage(MConJinro.getPrefix() +
                         ChatColor.GREEN + target.getName() + " は " +
                         j.getColor() + "["+j.getJobName()+"] " +

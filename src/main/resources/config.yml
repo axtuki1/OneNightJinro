@@ -16,3 +16,5 @@ reikai:
   z:
   yaw:
   pitch:
+
+Debug: false

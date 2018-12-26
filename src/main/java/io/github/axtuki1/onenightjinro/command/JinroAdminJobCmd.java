@@ -82,8 +82,8 @@ public class JinroAdminJobCmd implements TabExecutor {
     }
 
     private void sendCmdHelp(Player sender) {
-        Utility.sendCmdHelp(sender, "/jinro_ad job set <Job> <Player>", "投票状況を確認します。");
-        Utility.sendCmdHelp(sender, "/jinro_ad job del <Player>", "開票します。");
+        Utility.sendCmdHelp(sender, "/jinro_ad job set <Job> <Player>", "役職を設定します。");
+        Utility.sendCmdHelp(sender, "/jinro_ad job del <Player>", "役職の設定を取り消します。");
     }
 
     @Override

@@ -5,7 +5,6 @@ import io.github.axtuki1.onenightjinro.MConJinro;
 import io.github.axtuki1.onenightjinro.Utility;
 import io.github.axtuki1.onenightjinro.player.JinroPlayers;
 import io.github.axtuki1.onenightjinro.player.PlayerData;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -16,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class JinroTouhyouCmd implements TabExecutor {
     @Override
@@ -29,19 +27,41 @@ public class JinroTouhyouCmd implements TabExecutor {
             sendCmdHelp((Player)sender);
             return true;
         } else {
-            Player p = Utility.getPlayer( args[1] );
-            if(p == null){
+
+            PlayerData pd = JinroPlayers.getData( (Player)sender );
+
+            if(!pd.getPlayingType().equals(PlayerData.PlayingType.Player)){
+                sender.sendMessage(MConJinro.getPrefix() + ChatColor.RED + "あなたは投票できません。");
+                return true;
+            }
+
+            Player target = Utility.getPlayer( args[1] );
+            if(target == null){
                 sender.sendMessage(MConJinro.getPrefix() + ChatColor.RED + "プレイヤーが見つかりませんでした。");
                 return true;
             }
+
+            if( pd.getUUID().equals( target.getUniqueId() ) && !MConJinro.isDEBUG() ){
+                sender.sendMessage(MConJinro.getPrefix() + ChatColor.RED + "自分自身に投票はできません。");
+                return true;
+            }
+
             if( ((Player) sender).getInventory().getItemInMainHand().getType() == Material.PAPER){
-                Player ps = (Player) sender;
-                PlayerData pds = JinroPlayers.getData(ps.getUniqueId());
-                pds.setVoteTarget( p.getUniqueId() );
-                JinroPlayers.setData(ps.getUniqueId(), pds);
-                ps.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-                ps.updateInventory();
-                sender.sendMessage(MConJinro.getPrefix() + ChatColor.GREEN + p.getName() + " に投票しました。");
+                PlayerData targetpd = JinroPlayers.getData(target.getUniqueId());
+                if( targetpd.getPlayingType().equals(PlayerData.PlayingType.Player) ){
+                    Player ps = (Player) sender;
+                    PlayerData pds = JinroPlayers.getData(ps.getUniqueId());
+                    pds.setVoteTarget( target.getUniqueId() );
+                    JinroPlayers.setData(ps.getUniqueId(), pds);
+                    ps.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+                    ps.updateInventory();
+                    sender.sendMessage(MConJinro.getPrefix() + ChatColor.GREEN + target.getName() + " に投票しました。");
+                    MConJinro.sendGameMaster(
+                            MConJinro.getPrefix() + ChatColor.GREEN + sender.getName() + " -> " + target.getName()
+                    );
+                } else {
+                    sender.sendMessage(MConJinro.getPrefix() + ChatColor.RED + target.getName() + " には投票できません。");
+                }
             }
         }
         return true;

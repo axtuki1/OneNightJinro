@@ -59,6 +59,12 @@ public class JinroAdminCommand implements TabExecutor {
         }
         if( args[0].equalsIgnoreCase("start") ){
             if( GameStatus.getStatus().equals(GameStatus.Ready) ){
+
+                if( JinroPlayers.getPlayersFromPlayingType(PlayerData.PlayingType.Player).size() == 0 ){
+                    sender.sendMessage(MConJinro.getPrefix() + ChatColor.RED + "やる人誰も居ないですよ...?");
+                    return true;
+                }
+
                 BaseTimerTask task = new NightTimerTask(
                         plugin,
                         plugin.getConfig().getInt(
@@ -121,9 +127,7 @@ public class JinroAdminCommand implements TabExecutor {
         } else if( args[0].equalsIgnoreCase("toolimport") ){
             ToolImport.Import(Utility.CommandText(args, 1));
         } else if( args[0].equalsIgnoreCase("auto") ){
-
             rs.openInventory((Player)sender);
-
         } else if( args[0].equalsIgnoreCase("timer") ){
             // jinro_ad timer set 100
             if(args.length >= 3) {
@@ -143,7 +147,7 @@ public class JinroAdminCommand implements TabExecutor {
                     int t = ((BaseTimerTask)task).getSeconds();
                     ((BaseTimerTask)task).setSecondsRest( t + Integer.parseInt(args[2]) );
                 }
-            } else if( args[0].equalsIgnoreCase("pause") ) {
+            } else if( args[1].equalsIgnoreCase("pause") ) {
                 MConJinro.getTask().pause();
                 sender.sendMessage(MConJinro.getPrefix() + "タイマーを一時停止しました。");
             } else {
@@ -171,7 +175,7 @@ public class JinroAdminCommand implements TabExecutor {
         List<String> out = new ArrayList<String>();
         if( args.length == 1 ){
             for (String name : new String[]{
-                    "start", "stop", "next", "init", "touhyou", "job", "timer"
+                    "start", "stop", "next", "init", "touhyou", "job", "timer", "auto"
             }) {
                 if (name.toLowerCase().startsWith(args[0].toLowerCase())) {
                     out.add(name);

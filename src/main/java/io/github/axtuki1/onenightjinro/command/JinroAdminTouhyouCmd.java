@@ -30,11 +30,21 @@ public class JinroAdminTouhyouCmd implements TabExecutor {
             return true;
         }
         if( args[1].equalsIgnoreCase("check") ){
-            HashMap<Player, Player> tl = TouhyouList();
-            sender.sendMessage(ChatColor.RED + "===========[投票結果]===========");
-            for( Player p : tl.keySet() ){
-                sender.sendMessage(ChatColor.GREEN + p.getName() + " -> " + tl.get(p).getName());
+
+            PlayerData pd = null;
+
+            if( sender instanceof Player ){
+                pd = JinroPlayers.getData( (Player) sender );
             }
+
+            if( pd == null || !pd.getPlayingType().equals(PlayerData.PlayingType.Player) ){
+                HashMap<Player, Player> tl = TouhyouList();
+                sender.sendMessage(ChatColor.RED + "===========[投票結果]===========");
+                for( Player p : tl.keySet() ){
+                    sender.sendMessage(ChatColor.GREEN + p.getName() + " -> " + tl.get(p).getName());
+                }
+            }
+
             List<Player> pl = TouhyouCheck();
             if( pl.size() != 0){
                 StringBuilder sb = new StringBuilder();
@@ -45,7 +55,7 @@ public class JinroAdminTouhyouCmd implements TabExecutor {
                 if( (out.length() - 2) > 0 ){
                     out = out.substring(0, out.length() - 2);
                 }
-                Bukkit.broadcastMessage(MConJinro.getPrefix() + out);
+                sender.sendMessage(MConJinro.getPrefix() + out);
                 sender.sendMessage(MConJinro.getPrefix() + "が投票していません。");
             }
         } else if(args[1].equalsIgnoreCase("open")) {
@@ -108,8 +118,10 @@ public class JinroAdminTouhyouCmd implements TabExecutor {
     public List<Player> TouhyouCheck() {
         ArrayList<Player> p = new ArrayList<Player>();
         for(PlayerData pd : JinroPlayers.getPlayers().values()){
-            if( pd.getVoteTarget() == null ){
-                p.add( pd.getPlayer() );
+            if( pd.getPlayingType().equals(PlayerData.PlayingType.Player) ){
+                if( pd.getVoteTarget() == null ){
+                    p.add( pd.getPlayer() );
+                }
             }
         }
         return p;
@@ -118,8 +130,10 @@ public class JinroAdminTouhyouCmd implements TabExecutor {
     public HashMap<Player, Player> TouhyouList(){
         HashMap<Player, Player> p = new HashMap<Player, Player>();
         for(PlayerData pd : JinroPlayers.getPlayers().values()){
-            if( pd.getVoteTarget() != null ){
-                p.put( pd.getPlayer(), Bukkit.getPlayer(pd.getVoteTarget()) );
+            if( pd.getPlayingType().equals(PlayerData.PlayingType.Player) ){
+                if( pd.getVoteTarget() != null ){
+                    p.put( pd.getPlayer(), Bukkit.getPlayer(pd.getVoteTarget()) );
+                }
             }
         }
         return p;

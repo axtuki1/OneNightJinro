@@ -4,6 +4,7 @@ import io.github.axtuki1.onenightjinro.GameStatus;
 import io.github.axtuki1.onenightjinro.MConJinro;
 import io.github.axtuki1.onenightjinro.Utility;
 import io.github.axtuki1.onenightjinro.player.JinroPlayers;
+import io.github.axtuki1.onenightjinro.player.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Arrow;
@@ -33,8 +34,10 @@ public class Event implements Listener {
         e.setMessage(str);
         e.setCancelled(true);
 
+        PlayerData pd = JinroPlayers.getData(e.getPlayer().getUniqueId());
+
         // GM
-        if(e.getPlayer().hasPermission("Jinro.GameMaster") ){
+        if( JinroPlayers.isGameMaster(pd) ){
             if (Normalizer.normalize(e.getMessage(), Normalizer.Form.NFKC).toLowerCase().contains("@")) {
                 String f = Utility.myReplaceAll("@", "", e.getMessage());
                 f = Utility.myReplaceAll("＠", "", f);
@@ -98,8 +101,10 @@ public class Event implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDamageByEntity(EntityDamageByEntityEvent e) {
-        if( e.getDamager().hasPermission("Jinro.GameMaster") ) {
-            return;
+        if( e.getDamager() instanceof Player ){
+            if( JinroPlayers.isGameMaster( (Player)e.getDamager() ) ) {
+                return;
+            }
         }
 
         if (e.getDamager() instanceof Arrow) {

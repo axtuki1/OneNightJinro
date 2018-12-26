@@ -113,16 +113,20 @@ public class ExecutionTask extends BaseTask {
             Bukkit.broadcastMessage(ChatColor.WHITE + "余り" + ChatColor.GREEN + ": " + sb.toString());
         }
         for( PlayerData pd : JinroPlayers.getPlayers().values() ){
-            String ex = "";
-            String ch = "";
-            if( JinroPlayers.getExecutionPlayers().contains(pd.getUUID()) ){
-                ex = ChatColor.RED.toString() + "" + ChatColor.ITALIC.toString() + ChatColor.BOLD.toString() + "(処刑)";
+            if( pd.getPlayingType().equals(PlayerData.PlayingType.Player) ){
+                String ex = "";
+                String ch = "";
+                if( JinroPlayers.getExecutionPlayers().contains(pd.getUUID()) ){
+                    ex = ChatColor.RED.toString() + "" + ChatColor.ITALIC.toString() + ChatColor.BOLD.toString() + "(処刑)";
+                }
+                if( pd.getJob() != null ){
+                    if( !pd.getJob().equals(pd.getFirstJob()) ){
+                        Job fb = pd.getFirstJob();
+                        ch = ChatColor.GRAY + "<= " + fb.getColor() + "[" + fb.getJobName() + "] ";
+                    }
+                    Bukkit.broadcastMessage(ChatColor.WHITE + pd.getPlayer().getName() + ChatColor.GREEN + ": " + pd.getJob().getColor() + "[" + pd.getJob().getJobName() + "] " + ch + ex);
+                }
             }
-            if( !pd.getJob().equals(pd.getFirstJob()) ){
-                Job fb = pd.getFirstJob();
-                ch = ChatColor.GRAY + "<= " + fb.getColor() + "[" + fb.getJobName() + "] ";
-            }
-            Bukkit.broadcastMessage(ChatColor.WHITE + pd.getPlayer().getName() + ChatColor.GREEN + ": " + pd.getJob().getColor() + "[" + pd.getJob().getJobName() + "] " + ch + ex);
         }
         Bukkit.broadcastMessage(ChatColor.RED + "==================================");
         Bukkit.broadcastMessage(ChatColor.GOLD + "[各プレイヤーの行動(簡略)]");

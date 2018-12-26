@@ -1,5 +1,6 @@
 package io.github.axtuki1.onenightjinro.player;
 
+import io.github.axtuki1.onenightjinro.GameStatus;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -160,7 +161,19 @@ public class JinroPlayers {
     public static ArrayList<Player> getPlayers( Job job ) {
         ArrayList<Player> p = new ArrayList<Player>();
         for( PlayerData pd : getPlayers().values() ){
-            if( pd.getJob().equals(job) ){
+            if( pd.getJob() != null ){
+                if( pd.getJob().equals(job) ){
+                    p.add( pd.getPlayer() );
+                }
+            }
+        }
+        return p;
+    }
+
+    public static ArrayList<Player> getPlayersFromPlayingType(PlayerData.PlayingType pt) {
+        ArrayList<Player> p = new ArrayList<>();
+        for( PlayerData pd : getPlayers().values() ){
+            if( pd.getPlayingType().equals(pt) ){
                 p.add( pd.getPlayer() );
             }
         }
@@ -229,4 +242,15 @@ public class JinroPlayers {
         return getPlayers(job).size();
     }
 
+    public static boolean isGameMaster(Player p) {
+        return isGameMaster( JinroPlayers.getData(p.getUniqueId()) );
+    }
+
+    public static boolean isGameMaster(PlayerData pd) {
+        if (pd.getPlayingType().equals(PlayerData.PlayingType.GameMaster)
+                || ((GameStatus.getStatus().equals(GameStatus.Ready) || GameStatus.getStatus().equals(GameStatus.End)) && pd.getPlayer().hasPermission("Jinro.GameMaster"))) {
+            return true;
+        }
+        return false;
+    }
 }
